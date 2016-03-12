@@ -50,8 +50,8 @@ bob.receivePublicKeyFrom(alice);
 //  _ PUBLIC KEY <------------------------->  _ PUBLIC KEY
 
 // 4. ------------------------------------------------------------------
-// Alice is generated common secret key via using her private key and Bob's public key.
-// Bob is generated common secret key via using his private key and Alice's public key.
+// Alice generates common secret key via using her private key and Bob's public key.
+// Bob generates common secret key via using his private key and Alice's public key.
 // Both secret keys are equal without TRANSFERRING. This is the magic of Diffie-Helman algorithm.
 
 alice.generateCommonSecretKey();
