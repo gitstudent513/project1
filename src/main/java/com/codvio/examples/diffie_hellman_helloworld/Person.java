@@ -114,6 +114,11 @@ public class Person {
 
     //~ ----------------------------------------------------------------------------------------------------------------
 
+    /**
+     * In a real life example you must serialize the public key for transferring.
+     *
+     * @param  person
+     */
     public void receivePublicKeyFrom(final Person person) {
 
         receivedPublicKey = person.getPublicKey();
@@ -144,14 +149,14 @@ public class Person {
 
         try {
 
-            // Use 8 for DES, 6 for Blowfish
+            // Use 8 bytes (64 bits) for DES, 6 bytes (48 bits) for Blowfish
             final byte[] shortenedKey = new byte[8];
 
             System.arraycopy(longKey, 0, shortenedKey, 0, shortenedKey.length);
 
             return shortenedKey;
 
-            // Below method is more secure
+            // Below lines can be more secure
             // final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
             // final DESKeySpec       desSpec    = new DESKeySpec(longKey);
             //
