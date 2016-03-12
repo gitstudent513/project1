@@ -17,24 +17,54 @@ public class Person {
 
     //~ --- [INSTANCE FIELDS] ------------------------------------------------------------------------------------------
 
-    private String     name;
     private PrivateKey privateKey;
     private PublicKey  publicKey;
+    private PublicKey  receivedPublicKey;
     private byte[]     secretKey;
     private String     secretMessage;
 
 
 
-    //~ --- [CONSTRUCTORS] ---------------------------------------------------------------------------------------------
+    //~ --- [METHODS] --------------------------------------------------------------------------------------------------
 
-    public Person(final String name) {
+    public void encryptAndSendMessage(final String message, final Person person) {
 
-        this.name = name;
+        try {
+
+            // You can use Blowfish or another symmetric algorithm but you must adjust the key size.
+            final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
+            final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
+
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+
+            final byte[] encryptedMessage = cipher.doFinal(message.getBytes());
+
+            person.receiveAndDecryptMessage(encryptedMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
 
-    //~ --- [METHODS] --------------------------------------------------------------------------------------------------
+    //~ ----------------------------------------------------------------------------------------------------------------
+
+    public void generateCommonSecretKey() {
+
+        try {
+            final KeyAgreement keyAgreement = KeyAgreement.getInstance("DH");
+            keyAgreement.init(privateKey);
+            keyAgreement.doPhase(receivedPublicKey, true);
+
+            secretKey = shortenSecretKey(keyAgreement.generateSecret());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    //~ ----------------------------------------------------------------------------------------------------------------
 
     public void generateKeys() {
 
@@ -64,56 +94,7 @@ public class Person {
 
     //~ ----------------------------------------------------------------------------------------------------------------
 
-    public void receivePublicKeyFrom(final Person person) {
-
-        try {
-            final PublicKey receivedPublicKey = person.getPublicKey();
-
-            // Lets generate a secret agreed key
-            final KeyAgreement keyAgreement = KeyAgreement.getInstance("DH");
-            keyAgreement.init(privateKey);
-            keyAgreement.doPhase(receivedPublicKey, true);
-
-            secretKey = shortenSecretKey(keyAgreement.generateSecret());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    //~ ----------------------------------------------------------------------------------------------------------------
-
-    public void sendMessage(final String message, final Person person) {
-
-        try {
-
-            // You can use Blowfish or another symmetric algorithm but you must adjust the key size.
-            final SecretKeySpec keySpec = new SecretKeySpec(secretKey, "DES");
-            final Cipher        cipher  = Cipher.getInstance("DES/ECB/PKCS5Padding");
-
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-
-            person.receiveEncryptedMessage(cipher.doFinal(message.getBytes()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    //~ ----------------------------------------------------------------------------------------------------------------
-
-    public void whisperTheSecretMessage() {
-
-        System.out.println(secretMessage);
-    }
-
-
-
-    //~ ----------------------------------------------------------------------------------------------------------------
-
-    private void receiveEncryptedMessage(final byte[] message) {
+    public void receiveAndDecryptMessage(final byte[] message) {
 
         try {
 
@@ -127,6 +108,24 @@ public class Person {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+
+    //~ ----------------------------------------------------------------------------------------------------------------
+
+    public void receivePublicKeyFrom(final Person person) {
+
+        receivedPublicKey = person.getPublicKey();
+    }
+
+
+
+    //~ ----------------------------------------------------------------------------------------------------------------
+
+    public void whisperTheSecretMessage() {
+
+        System.out.println(secretMessage);
     }
 
 

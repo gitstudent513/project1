@@ -3,15 +3,23 @@ This little Diffie-Hellman Key Exchange program implemented for learning purpose
 This is how things done in Main.java:
 
 ```java
-final Person alice = new Person("Alice");
-final Person bob   = new Person("Bob");
+// 1. ------------------------------------------------------------------
+// This is Alice and Bob
+// Alice and Bob want to chat securely. But how?
 
+final Person alice = new Person();
+final Person bob   = new Person();
+
+//    ?                                        ?
 //
 //    O                                        O
 //   /|\                                      /|\
 //   / \                                      / \
 //
 //  ALICE                                     BOB
+
+// 2. ------------------------------------------------------------------
+// Alice and Bob generate public and private keys.
 
 alice.generateKeys();
 bob.generateKeys();
@@ -22,8 +30,11 @@ bob.generateKeys();
 //   / \                                      / \
 //
 //  ALICE                                     BOB
-//  + public                                  + public
-//  + private                                 + private
+//  _ PUBLIC KEY                              _ PUBLIC KEY
+//  _ PRIVATE KEY                             _ PRIVATE KEY
+
+// 3. ------------------------------------------------------------------
+// Alice and Bob exchange public keys with each other.
 
 alice.receivePublicKeyFrom(bob);
 bob.receivePublicKeyFrom(alice);
@@ -34,10 +45,33 @@ bob.receivePublicKeyFrom(alice);
 //   / \                                      / \
 //
 //  ALICE                                     BOB
-//  + public  <---------------------------->  + public
-//  + private                                 + private
+//  + public key                              + public key
+//  + private key                             + private key
+//  _ PUBLIC KEY <------------------------->  _ PUBLIC KEY
 
-alice.sendMessage("Let Ayşe go on a holiday!", bob);
+// 4. ------------------------------------------------------------------
+// Alice is generated common secret key via using her private key and Bob's public key.
+// Bob is generated common secret key via using his private key and Alice's public key.
+// Both secret keys are equal without TRANSFERRING. This is the magic of Diffie-Helman algorithm.
+
+alice.generateCommonSecretKey();
+bob.generateCommonSecretKey();
+
+//
+//    O                                        O
+//   /|\                                      /|\
+//   / \                                      / \
+//
+//  ALICE                                     BOB
+//  + public key                              + public key
+//  + private key                             + private key
+//  + public key                              + public key
+//  _ SECRET KEY                              _ SECRET KEY
+
+// 5. ------------------------------------------------------------------
+// Alice encrypts message using the secret key and sends to Bob
+
+alice.encryptAndSendMessage("Bob! Guess Who I am.", bob);
 
 //
 //    O                                        O
@@ -45,8 +79,14 @@ alice.sendMessage("Let Ayşe go on a holiday!", bob);
 //   / \                                      / \
 //
 //  ALICE                                     BOB
-//  + public                                  + public
-//  + private                                 + private
+//  + public key                              + public key
+//  + private key                             + private key
+//  + public key                              + public key
+//  + secret key                              + secret key
+//  + message                                 _ MESSAGE
+
+// 6. ------------------------------------------------------------------
+// Bob receives the important message and decrypts with secret key.
 
 bob.whisperTheSecretMessage();
 
@@ -56,6 +96,9 @@ bob.whisperTheSecretMessage();
 //   / \                                      / \
 //
 //  ALICE                                     BOB
-//  + public                                  + public
-//  + private                                 + private
+//  + public key                              + public key
+//  + private key                             + private key
+//  + public key                              + public key
+//  + secret key                              + secret key
+//  + message                                 + message
 ```
